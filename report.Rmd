@@ -1,0 +1,70 @@
+---
+title: "Practical Machine Learning report"
+author: "Diana Low"
+date: "Friday, August 22, 2014"
+output: html_document
+---
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+library(ggplot2)
+library(rattle)
+library("rpart.plot")
+load("data.Rdata")
+```
+
+Introduction
+---
+This is a report for the Coursera Practical Machine Learning course. The goal is to predict how a person does a particular exercise (in this case, the barbell lift). They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
+
+From the dataset, we can see that there are 6 users given by the variable "user_name":
+```{r, echo=FALSE}
+unique(training$user_name)
+```
+
+and 5 possible outcomes of the exercise, give by the variable "classe":
+```{r, echo=FALSE}
+unique(training$classe)
+```
+
+Given that this is a classification problem, we will try to fit the model using trees or naive Bayes.
+
+Cleaning data and observations
+---
+There are many variables that have missing values ("NA") in one or more of the readings. I have chosen to remove all of them. This reduces the number of variables from 159 to 54.
+
+Also, there seems to be a large variation between users, which could be due to either how each person does an exercise, or the calibration of the device that they are using. Take for example the variable roll_belt. It is clear from here that the values produced by users carlitos, eurico and jeremy are different from the other 3 users.
+
+```{r, echo=FALSE}
+qplot(c(1:nrow(training_user)),roll_belt,data=training_user,col=as.factor(user_name),xlab="Index")
+```
+
+Model building
+---
+To be able to have an out of sample error rate estimation, we will split the training data set - 70% for building the model, and 30% for testing. The final test dataset provided will be used for prediction.
+
+Based on this fact, I have decided to fit models for each user. First, we will try using the rpart method for the model, using all the variables available.
+
+Using user_name=adelmo as an example, the rpart model used 3 variables to predict the class of exercise.
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+fancyRpartPlot(model_adelmo_rp$finalModel,"user=adelmo")
+```
+The in-sample and out-of-sample accuracy of the rpart model came to be at:
+```{r, echo=FALSE}
+in_sample_accuracy<-adelmoTrain$classe==pred_adelmo_rp_train
+out_sample_accuracy<-adelmoTest$classe==pred_adelmo_rp_test
+cat("In-sample accuracy (adelmo,rpart)",sum(in_sample_accuracy)/length(in_sample_accuracy))
+cat("Out-of-sample accuracy (adelmo,rpart)",sum(out_sample_accuracy)/length(out_sample_accuracy)) 
+```
+
+We next try the Naive Bayes prediction, which improved the out-of-sample prediction accuracy by about 30%.
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+in_sample_accuracy<-adelmoTrain$classe==pred_adelmo_nb_train
+out_sample_accuracy<-adelmoTest$classe==pred_adelmo_nb_test
+cat("In-sample accuracy (adelmo,naive bayes)",sum(in_sample_accuracy)/length(in_sample_accuracy))
+cat("Out-of-sample accuracy (adelmo,naive bayes)",sum(out_sample_accuracy)/length(out_sample_accuracy)) 
+```
+
+The average in-sample accuracy of the Naive Bayes model comes up to about 93.2% while the out-of-sample accuracy was around 90.9%.
+
+Conclusion
+---
+Using this model for the prediction assignment, we managed to get 18 out of 20 predictions correct, which is a 90% accurate, which is quite near our predicted out-of-sample accuracy of 90.9%.
