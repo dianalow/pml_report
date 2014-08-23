@@ -39,14 +39,15 @@ qplot(c(1:nrow(training_user)),roll_belt,data=training_user,col=as.factor(user_n
 
 Model building
 ---
-To be able to have an out of sample error rate estimation, we will split the training data set - 70% for building the model, and 30% for testing. The final test dataset provided will be used for prediction.
+Based on the above fact on varied levels of readings, I have decided to fit models for each user. First, we will try using the rpart method for the model, using all the variables available.
 
-Based on this fact, I have decided to fit models for each user. First, we will try using the rpart method for the model, using all the variables available.
+To be able to have an out of sample error rate estimation, we will split the training data set - 70% for building the model, and 30% for testing. The test provided dataset provided will be used for the final prediction.
 
 Using user_name=adelmo as an example, the rpart model used 3 variables to predict the class of exercise.
 ```{r, echo=FALSE,message=FALSE,warning=FALSE}
 fancyRpartPlot(model_adelmo_rp$finalModel,"user=adelmo")
 ```
+
 The in-sample and out-of-sample accuracy of the rpart model came to be at:
 ```{r, echo=FALSE}
 in_sample_accuracy<-adelmoTrain$classe==pred_adelmo_rp_train
@@ -55,7 +56,7 @@ cat("In-sample accuracy (adelmo,rpart)",sum(in_sample_accuracy)/length(in_sample
 cat("Out-of-sample accuracy (adelmo,rpart)",sum(out_sample_accuracy)/length(out_sample_accuracy)) 
 ```
 
-We next try the Naive Bayes prediction, which improved the out-of-sample prediction accuracy by about 30%.
+We next try the Naive Bayes prediction, which improved the out-of-sample prediction accuracy by about 20%.
 ```{r, echo=FALSE,message=FALSE,warning=FALSE}
 in_sample_accuracy<-adelmoTrain$classe==pred_adelmo_nb_train
 out_sample_accuracy<-adelmoTest$classe==pred_adelmo_nb_test
@@ -67,4 +68,4 @@ The average in-sample accuracy of the Naive Bayes model comes up to about 93.2% 
 
 Conclusion
 ---
-Using this model for the prediction assignment, we managed to get 18 out of 20 predictions correct, which is a 90% accurate, which is quite near our predicted out-of-sample accuracy of 90.9%.
+Using this model for the prediction assignment, we managed to get 18 out of 20 predictions correct, which is 90% accurate, which is quite near our predicted out-of-sample accuracy of 90.9%.
